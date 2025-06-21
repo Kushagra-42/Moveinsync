@@ -157,30 +157,139 @@ The application exposes several REST API endpoints:
 
 ## Folder Structure
 
-### Backend
-
 ```
-src/
-├── app.js                 # Express app setup
-├── server.js              # Server entry point
-├── config/                # Configuration files
-├── controllers/           # Route controllers
-├── middleware/            # Custom middleware
-├── models/                # Mongoose models
-├── routes/                # API routes
-└── utils/                 # Helper functions
-```
-
-### Frontend
-
-```
-src/
-├── api/                   # API client and service functions
-├── components/            # Reusable React components
-├── pages/                 # Page components
-├── store/                 # Zustand state management
-├── styles/                # CSS styles
-└── utils/                 # Helper functions
+MoveinSync/
+├── .gitignore                # Git ignore rules
+├── .env.example              # Example environment variables (safe to commit)
+├── README.md                 # Project documentation
+│
+├── Backend/
+│   ├── .env                  # Environment variables (not committed)
+│   ├── package.json          # Backend dependencies and scripts
+│   ├── seed.js               # Database seeding script
+│   ├── fix-permissions.js    # Utility script for permissions
+│   ├── update-password.js    # Utility for password management
+│   ├── checkVendors.js       # Vendor validation utility
+│   │
+│   ├── src/
+│   │   ├── app.js            # Express application setup
+│   │   ├── server.js         # Server entry point
+│   │   │
+│   │   ├── config/
+│   │   │   └── db.js         # Database configuration
+│   │   │
+│   │   ├── controllers/
+│   │   │   ├── authController.js      # Authentication logic
+│   │   │   ├── documentController.js  # Document management
+│   │   │   ├── driverController.js    # Driver management
+│   │   │   ├── vehicleController.js   # Vehicle management
+│   │   │   └── vendorController.js    # Vendor management
+│   │   │
+│   │   ├── middleware/
+│   │   │   ├── authenticate.js        # JWT authentication
+│   │   │   ├── authorize.js           # Role-based authorization
+│   │   │   └── errorHandler.js        # Global error handling
+│   │   │
+│   │   ├── models/
+│   │   │   ├── Driver.js     # Driver data model
+│   │   │   ├── User.js       # User account model
+│   │   │   ├── Vehicle.js    # Vehicle data model
+│   │   │   └── Vendor.js     # Vendor data model
+│   │   │
+│   │   ├── routes/
+│   │   │   ├── auth.js       # Authentication routes
+│   │   │   ├── documents.js  # Document management routes
+│   │   │   ├── drivers.js    # Driver management routes
+│   │   │   ├── stats.js      # Analytics & statistics
+│   │   │   ├── vehicles.js   # Vehicle management routes
+│   │   │   └── vendors.js    # Vendor management routes
+│   │   │
+│   │   └── utils/
+│   │       ├── generateToken.js  # JWT token generation
+│   │       └── subtree.js        # Hierarchical data utilities
+│   │
+│   └── uploads/                  # File upload storage (not committed)
+│       ├── drivers/              # Driver documents
+│       │   └── .gitkeep          # Empty file to maintain directory
+│       └── vehicles/             # Vehicle documents
+│           └── .gitkeep          # Empty file to maintain directory
+│
+└── Frontend/
+    ├── package.json          # Frontend dependencies and scripts
+    ├── index.html            # Root HTML file
+    ├── vite.config.js        # Vite configuration
+    ├── eslint.config.js      # ESLint configuration
+    │
+    ├── public/               # Static assets 
+    │   └── index.html        # Public index file
+    │
+    └── src/
+        ├── App.jsx           # Root React component
+        ├── AppRoutes.jsx     # Application routes
+        ├── main.jsx          # Application entry point
+        │
+        ├── api/              # API client and service functions
+        │   ├── apiClient.js  # Base API client setup
+        │   ├── auth.js       # Authentication API
+        │   ├── documents.js  # Document API
+        │   ├── drivers.js    # Driver API
+        │   ├── fleet.js      # Fleet management API
+        │   ├── stats.js      # Statistics API
+        │   ├── vehicles.js   # Vehicle API
+        │   └── vendors.js    # Vendor API
+        │
+        ├── components/       # Reusable React components
+        │   ├── CreateDriverForm.jsx
+        │   ├── CreateVehicleForm.jsx
+        │   ├── DashboardStats.jsx
+        │   ├── DocumentStatus.jsx
+        │   ├── DocumentUploadForm.jsx
+        │   ├── DriverDetails.jsx
+        │   ├── FileUpload.jsx
+        │   ├── FleetManagement.jsx
+        │   ├── LoginForm.jsx
+        │   ├── ProtectedRoute.jsx
+        │   ├── Sidebar.jsx
+        │   ├── SubVendorForm.jsx
+        │   ├── VehicleDetails.jsx
+        │   ├── Vendordetails.jsx
+        │   ├── VendorPermissionsManager.jsx
+        │   └── VendorTree.jsx
+        │
+        ├── pages/            # Page components
+        │   ├── AnalyticsPage.jsx
+        │   ├── CityHomePage.jsx
+        │   ├── CompliancePage.jsx
+        │   ├── Dashboard.jsx
+        │   ├── DashboardCity.jsx
+        │   ├── DashboardDriver.jsx
+        │   ├── DashboardRegional.jsx
+        │   ├── DashboardSuper.jsx
+        │   ├── DriverDocumentsPage.jsx
+        │   ├── DriverHomePage.jsx
+        │   ├── DriversPage.jsx
+        │   ├── FleetPage.jsx
+        │   ├── HomePage.jsx
+        │   ├── LoginPage.jsx
+        │   ├── NotFound.jsx
+        │   ├── RegionalHomePage.jsx
+        │   ├── SimpleDashboard.jsx
+        │   ├── SuperHomePage.jsx
+        │   ├── VehiclesPage.jsx
+        │   ├── VendorsPage.jsx
+        │   └── VerificationPage.jsx
+        │
+        ├── store/            # State management
+        │   └── authStore.js  # Authentication state
+        │
+        ├── styles/           # CSS stylesheets
+        │   ├── global.css    # Global styles
+        │   ├── dashboard.css # Dashboard styles
+        │   ├── form.css      # Form styles
+        │   └── ...           # Other component-specific styles
+        │
+        └── utils/            # Utility functions
+            └── constants.js  # Application constants
 ```
 
 ## License
