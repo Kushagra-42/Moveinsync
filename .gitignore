@@ -1,10 +1,10 @@
-# Environment variables
+# Environment variables - ensure these are never committed
 .env
 *.env
 .env.*
-Backend/.env
-Frontend/.env
-*/**/.env
+/Backend/.env
+/Frontend/.env
+**/.env
 .env.local
 .env.development.local
 .env.test.local
