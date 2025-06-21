@@ -293,11 +293,3 @@ MoveinSync/
         └── utils/            # Utility functions
             └── constants.js  # Application constants
 ```
-
-## License
-
-[MIT License](LICENSE)
-
-## Contributors
-
-- [Your Name](https://github.com/yourusername)
