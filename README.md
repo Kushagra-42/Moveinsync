@@ -1,6 +1,6 @@
-# MoveinSync - Fleet Management System
+# MoveIt - Fleet Management System
 
-MoveinSync is a comprehensive fleet management system designed to help businesses manage their transportation assets, including vendors, vehicles, drivers, and compliance documentation. The application provides role-based dashboards for different levels of management, from drivers to super administrators.
+MoveIt is a comprehensive fleet management system designed to help businesses manage their transportation assets, including vendors, vehicles, drivers, and compliance documentation. The application provides role-based dashboards for different levels of management, from drivers to super administrators.
 
 ## Project Structure
 
