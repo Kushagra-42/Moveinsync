@@ -67,11 +67,16 @@ npm install
 ```
 
 3. Set up environment variables
-Create a `.env` file in the Backend directory with:
+Copy the `.env.example` file to a new file named `.env` in the Backend directory:
+```bash
+cp .env.example .env
+```
+
+Then edit the `.env` file with your specific configuration:
 ```
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/moveinsync
-JWT_SECRET=your_jwt_secret
+MONGODB_URI=mongodb://localhost:27017/moveinsync  # Your MongoDB connection string
+JWT_SECRET=your_jwt_secret                        # Generate a strong secret
 JWT_EXPIRES_IN=30d
 ```
 
@@ -108,6 +113,27 @@ npm run dev
 ```
 
 The frontend development server will start on http://localhost:5173
+
+## Security Best Practices
+
+1. **Environment Variables**:
+   - Never commit your `.env` file to version control
+   - Use the provided `.env.example` as a template
+   - For production, set environment variables through your hosting platform
+
+2. **MongoDB Connection String**:
+   - Create a dedicated database user with limited permissions
+   - Use a strong password for your MongoDB user
+   - Restrict network access to your database with IP whitelisting
+
+3. **JWT Secret**:
+   - Generate a strong random string for your JWT_SECRET
+   - Consider using a tool like `openssl rand -hex 32` to generate a secure secret
+   - Rotate the JWT secret periodically in production environments
+
+4. **File Uploads**:
+   - The upload directories are gitignored except for `.gitkeep` files
+   - Implement additional validation for uploaded files in production
 
 ### Building for Production
 
