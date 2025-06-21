@@ -1,0 +1,151 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f5f7fa;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(235, 240, 245, 0.8) 100%);
+}
+
+.login-header {
+  text-align: center;
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
+
+.VMSH1 {
+  margin: 0;
+  color: #2f3e4e;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.login-subheader {
+  color: #5a6a7a;
+  margin-top: 10px;
+  font-size: 1.1rem;
+}
+
+.login-container {
+  max-width: 450px;
+  width: 90%;
+  margin: 20px auto;
+  padding: 40px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.login-container h2 {
+  margin-bottom: 10px;
+  text-align: center;
+  color: #2f3e4e;
+  font-weight: 600;
+}
+
+.login-instruction {
+  text-align: center;
+  color: #5a6a7a;
+  margin-bottom: 25px;
+}
+
+.login-form-container {
+  width: 100%;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #5a6a7a;
+}
+
+.form-input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+  outline: none;
+}
+
+.login-button {
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+.login-button:disabled {
+  background-color: #a0c2e6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+/* Test credentials section */
+.test-credentials {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+.test-credentials p {
+  margin-bottom: 10px;
+  color: #5a6a7a;
+  font-size: 0.9rem;
+}
+
+.test-cred-button {
+  background-color: #f1f5f9;
+  border: 1px solid #ddd;
+  color: #5a6a7a;
+  padding: 8px 12px;
+  margin: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.test-cred-button:hover {
+  background-color: #e2e8f0;
+  color: #2f3e4e;
+}
+  text-align: center;
+  color: #133962;
+}

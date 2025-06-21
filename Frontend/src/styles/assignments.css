@@ -1,0 +1,219 @@
+/* src/styles/assignments.css */
+/* Styling for vehicle and driver assignments */
+
+.assign-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.assign-modal-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  position: relative;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-available {
+  background-color: #cff6cf;
+  color: #0a5c0a;
+}
+
+.status-on-duty, .status-in-service {
+  background-color: #b2e0ff;
+  color: #014380;
+}
+
+.status-maintenance {
+  background-color: #fff2b2;
+  color: #856404;
+}
+
+.status-inactive {
+  background-color: #ffd2d2;
+  color: #721c24;
+}
+
+/* Assign action buttons */
+.action-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.action-btn {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  height: 28px;
+  width: 28px;
+  margin: 0;
+  padding: 0;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background-color: #f1f1f1;
+}
+
+.action-btn.edit:hover {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.action-btn.assign:hover {
+  border-color: #28a745;
+  color: #28a745;
+}
+
+.action-btn.status:hover {
+  border-color: #ffc107;
+  color: #ffc107;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.info-message {
+  background-color: #e8f4ff;
+  border-left: 4px solid #007bff;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.error-message {
+  background-color: #fde8e8;
+  border-left: 4px solid #f56565;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  color: #c53030;
+}
+
+.success-message {
+  background-color: #e6fffa;
+  border-left: 4px solid #38b2ac;
+  padding: 12px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  color: #234e52;
+}
+
+button {
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.primary-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.primary-button:hover:not(:disabled) {
+  background-color: #0069d9;
+}
+
+.secondary-button {
+  background-color: #f8f9fa;
+  color: #212529;
+  border: 1px solid #ddd;
+}
+
+.secondary-button:hover:not(:disabled) {
+  background-color: #e2e6ea;
+}
+
+.cancel-button {
+  background-color: transparent;
+  color: #6c757d;
+  border: 1px solid #6c757d;
+}
+
+.cancel-button:hover {
+  background-color: #f8f9fa;
+}
+
+/* Table enhancements */
+.table-responsive {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px;
+  border-bottom: 2px solid #ddd;
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+tr:hover {
+  background-color: #f9f9f9;
+}

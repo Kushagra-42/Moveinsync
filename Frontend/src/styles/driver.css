@@ -1,0 +1,62 @@
+/* Frontend/src/styles/driver.css */
+.driver-documents-page {
+  padding: 20px;
+}
+
+.driver-documents-page h2 {
+  margin-bottom: 20px;
+  color: #333;
+  border-bottom: 2px solid #1976d2;
+  padding-bottom: 10px;
+  font-size: 1.8rem;
+}
+
+.document-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.document-card:hover {
+  transform: translateY(-5px);
+}
+
+.document-card h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #1976d2;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.compliance-warning {
+  color: #f57f17;
+  font-weight: 500;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #fff8e1;
+  border-left: 4px solid #f57f17;
+  border-radius: 4px;
+}
+
+@media (min-width: 768px) {
+  .documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+  }
+}
+
+.document-upload-section {
+  margin-top: 20px;
+}
+
+.document-upload-section h5 {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 10px;
+}
