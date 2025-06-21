@@ -293,3 +293,7 @@ MoveinSync/
         └── utils/            # Utility functions
             └── constants.js  # Application constants
 ```
+
+## Contributors
+
+- [Your Name](https://github.com/Kushagra-42)
