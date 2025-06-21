@@ -296,4 +296,4 @@ MoveinSync/
 
 ## Contributors
 
-- [Your Name](https://github.com/Kushagra-42)
+- [Kushagra Pandey](https://github.com/Kushagra-42)
