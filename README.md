@@ -164,12 +164,14 @@ MoveinSync/
 ├── README.md                 # Project documentation
 │
 ├── Backend/
-│   ├── .env                  # Environment variables (not committed)
+│   ├── .env                  # Environment variables (not committed to Git)
 │   ├── package.json          # Backend dependencies and scripts
 │   ├── seed.js               # Database seeding script
 │   ├── fix-permissions.js    # Utility script for permissions
 │   ├── update-password.js    # Utility for password management
+│   ├── update-permissions-seed.js # Permission seeding utility
 │   ├── checkVendors.js       # Vendor validation utility
+│   ├── createSampleHierarchy.js # Sample data generator
 │   │
 │   ├── src/
 │   │   ├── app.js            # Express application setup
