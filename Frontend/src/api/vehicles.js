@@ -53,6 +53,13 @@ export async function getVehicleById(id) {
 
 // Get vehicle statistics for a vendor
 export async function getVehicleStats(vendorId) {
-  const res = await api.get(`/vehicles/stats/${vendorId || 'current'}`);
-  return res.data;
+  console.log('Getting vehicle stats for vendorId:', vendorId || 'current');
+  try {
+    const res = await api.get(`/vehicles/stats/${vendorId || 'current'}`);
+    console.log('Vehicle stats response:', res.data);
+    return res.data;
+  } catch (error) {
+    console.error('Error getting vehicle stats:', error);
+    throw error;
+  }
 }

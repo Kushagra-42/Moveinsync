@@ -14,6 +14,7 @@ import '../styles/table.css';
 import '../styles/forms.css';
 import '../styles/modal.css';
 import '../styles/assignments.css';
+import '../styles/vehicles-enhanced.css';
 
 export default function VehiclesPage() {
   const user = useAuthStore(state => state.user);
@@ -34,9 +35,16 @@ export default function VehiclesPage() {
   useEffect(() => {
     if (user) {
       loadVehicles();
-      loadVehicleStats();
     }
   }, [user, filterStatus, filterRegion, filterCity]);
+  
+  // Separate useEffect for stats to ensure they're always loaded
+  useEffect(() => {
+    if (user) {
+      console.log('Loading vehicle stats...');
+      loadVehicleStats();
+    }
+  }, [user]);
   
   // Extract unique regions and cities from vehicles data
   useEffect(() => {
@@ -48,27 +56,20 @@ export default function VehiclesPage() {
       
       setRegions(uniqueRegions);
       
-      // Extract unique cities based on selected region
+      // Extract all unique cities regardless of region
       const uniqueCities = [...new Set(vehicles
-        .filter(v => v.city && (!filterRegion || v.region === filterRegion))
+        .filter(v => v.city)
         .map(v => v.city))];
       
       setCities(uniqueCities);
-      
-      // Reset city filter if region changes and current city isn't in new region
-      if (filterRegion && filterCity) {
-        const cityInRegion = vehicles.some(v => 
-          v.region === filterRegion && v.city === filterCity);
-        
-        if (!cityInRegion) {
-          setFilterCity('');
-        }
-      }
     }
-  }, [vehicles, filterRegion]);
+  }, [vehicles]);
   const loadVehicleStats = async () => {
     try {
-      const vehicleStats = await getVehicleStats(user.vendorId);
+      // Use 'current' to let the backend use the authenticated user's vendorId
+      const vehicleStats = await getVehicleStats('current');
+      
+      console.log('Vehicle stats response:', vehicleStats);
       
       // Ensure vehicleStats is valid and contains numeric values
       if (vehicleStats && typeof vehicleStats === 'object') {
@@ -80,8 +81,10 @@ export default function VehiclesPage() {
           inactive: typeof vehicleStats.inactive === 'number' ? vehicleStats.inactive : 0,
           unassigned: typeof vehicleStats.unassigned === 'number' ? vehicleStats.unassigned : 0
         };
+        console.log('Setting vehicle stats to:', sanitizedStats);
         setStats(sanitizedStats);
       } else {
+        console.log('Invalid vehicle stats response, using defaults');
         // Set default stats if response is invalid
         setStats({ total: 0, active: 0, maintenance: 0, inactive: 0, unassigned: 0 });
       }
@@ -254,19 +257,20 @@ export default function VehiclesPage() {
     unassigned: vehicles.filter(v => v.status === 'AVAILABLE' && !v.assignedDriverId).length
   };
 
-  return (
-    <div className="vehicles-page">
+  return (      <div className="vehicles-page">
       <div className="page-header">
         <h1>Fleet Management</h1>
         {user.permissions?.canAddVehicle && (
           <button 
-            className="add-button" 
+            className="primary-button add-button" 
             onClick={() => setShowAddVehicleModal(true)}
           >
             + Add Vehicle
           </button>
         )}
-      </div>      <div className="stats-cards">
+      </div>
+      
+      <div className="stats-cards">
         <div className="stat-card">
           <div className="stat-title">Total Vehicles</div>
           <div className="stat-value">
@@ -278,6 +282,7 @@ export default function VehiclesPage() {
           <div className="stat-value">
             {typeof stats?.active === 'number' ? stats.active : statusCounts.active}
           </div>
+          <div className="stat-label">Available & In Service</div>
         </div>
         <div className="stat-card maintenance">
           <div className="stat-title">In Maintenance</div>
@@ -302,14 +307,12 @@ export default function VehiclesPage() {
       <div className="filters-container">
         <div className="filter-group">
           <label>Status:</label>
-          <select 
-            value={filterStatus} 
-            onChange={e => setFilterStatus(e.target.value)}
-          >                <option value="">All</option>
-                <option value="AVAILABLE">Available</option>
-                <option value="IN_SERVICE">In Service</option>
-                <option value="MAINTENANCE">Maintenance</option>
-                <option value="INACTIVE">Inactive</option>
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+            <option value="">All</option>
+            <option value="AVAILABLE">Available</option>
+            <option value="IN_SERVICE">In Service</option>
+            <option value="MAINTENANCE">Maintenance</option>
+            <option value="INACTIVE">Inactive</option>
           </select>
         </div>
         
@@ -337,7 +340,6 @@ export default function VehiclesPage() {
             <select 
               value={filterCity} 
               onChange={e => setFilterCity(e.target.value)}
-              disabled={!filterRegion}
             >
               <option value="">All</option>
               {cities.map(city => (
@@ -366,9 +368,10 @@ export default function VehiclesPage() {
               <CreateVehicleForm 
                 onCreated={() => {
                   loadVehicles();
-                  setShowAddVehicleModal(false);
+                  loadVehicleStats(); // Make sure stats are updated
                 }} 
                 onCancel={() => setShowAddVehicleModal(false)}
+                includeDocuments={true} // Enable document upload
               />
             </div>
           </div>
@@ -416,7 +419,6 @@ export default function VehiclesPage() {
               <select 
                 value={filterCity} 
                 onChange={e => setFilterCity(e.target.value)}
-                disabled={!filterRegion}
               >
                 <option value="">All Cities</option>
                 {cities.map(city => (
@@ -429,7 +431,7 @@ export default function VehiclesPage() {
               Clear
             </button>
             
-            <button onClick={loadVehicles} className="refresh-button">
+            <button onClick={loadVehicles} className="secondary-button refresh-button">
               ↻ Refresh
             </button>
           </div>

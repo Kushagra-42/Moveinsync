@@ -162,41 +162,109 @@ export default function VehicleDetails({ vehicle, onClose }) {
                 <div className="error-message">{error}</div>
               ) : complianceStatus && documents ? (
                 <>
-                  <div className="compliance-summary">
-                    <div className={`compliance-card ${complianceStatus.overall.compliant ? 'success' : 'danger'}`}>
-                      <h3>Compliance Status</h3>
-                      <p className="compliance-count">
-                        {complianceStatus.overall.compliant ? 'Compliant ✓' : 'Non-Compliant ✗'}
-                      </p>
-                      <p>Last checked: {new Date(complianceStatus.overall.lastChecked).toLocaleDateString()}</p>
+                  <div className="compliance-section">
+                    <h3>Compliance Status</h3>
+                    <div className={`compliance-status ${complianceStatus.overall.compliant ? 'compliant' : 'non-compliant'}`}>
+                      <div className="status-icon">
+                        {complianceStatus.overall.compliant ? '✓' : '✗'}
+                      </div>
+                      <div className="status-details">
+                        <h4>{complianceStatus.overall.compliant ? 'Compliant' : 'Non-Compliant'}</h4>
+                        <p>Last checked: {new Date(complianceStatus.overall.lastChecked).toLocaleDateString()}</p>
+                      </div>
                     </div>
-                  </div>                  <div className="document-section">
+                  </div>
+
+                  <div className="document-section">
                     <h3>Vehicle Documents</h3>
-                    
-                    <div className="documents-grid">
-                      {/* Insurance - Only required document */}
-                      <div>
-                        <DocumentStatus 
-                          entityId={vehicle._id}
-                          entityType="vehicle"
-                          docType="insurance"
-                          docName="Insurance"
-                          document={documents.insurance}
-                          complianceStatus={complianceStatus.insurance}
-                          canVerify={user.permissions?.canVerifyDocuments}
-                          onVerified={loadDocuments}
-                        />
-                        
-                        {user.permissions?.canAddVehicle && (
-                          <DocumentUploadForm 
+
+                    {/* Insurance Document */}
+                    <div className="document-item">
+                      <h4>Insurance</h4>
+                      {!documents.insurance?.url ? (
+                        <div className="document-status missing">
+                          <p>Missing</p>
+                          <p className="missing-text">No document uploaded yet</p>
+                          
+                          {user.permissions?.canAddVehicle && (
+                            <DocumentUploadForm 
+                              entityId={vehicle._id}
+                              entityType="vehicle"
+                              docType="insurance"
+                              docName="Insurance"
+                              onUploaded={loadDocuments}
+                            />
+                          )}
+                        </div>
+                      ) : (
+                        <div className="document-with-status">
+                          <DocumentStatus 
                             entityId={vehicle._id}
                             entityType="vehicle"
                             docType="insurance"
                             docName="Insurance"
-                            onUploaded={loadDocuments}
+                            document={documents.insurance}
+                            complianceStatus={complianceStatus.insurance}
+                            canVerify={user.permissions?.canVerifyDocuments}
+                            onVerified={loadDocuments}
                           />
-                        )}
-                      </div>
+
+                          {user.permissions?.canAddVehicle && (
+                            <DocumentUploadForm 
+                              entityId={vehicle._id}
+                              entityType="vehicle"
+                              docType="insurance"
+                              docName="Insurance"
+                              onUploaded={loadDocuments}
+                            />
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Permit Document */}
+                    <div className="document-item">
+                      <h4>Permit</h4>
+                      {!documents.permit?.url ? (
+                        <div className="document-status missing">
+                          <p>Missing</p>
+                          <p className="missing-text">No document uploaded yet</p>
+                          
+                          {user.permissions?.canAddVehicle && (
+                            <DocumentUploadForm 
+                              entityId={vehicle._id}
+                              entityType="vehicle"
+                              docType="permit"
+                              docName="Permit"
+                              onUploaded={loadDocuments}
+                            />
+                          )}
+                        </div>
+                      ) : (
+                        <div className="document-with-status">
+                          <DocumentStatus 
+                            entityId={vehicle._id}
+                            entityType="vehicle"
+                            docType="permit"
+                            docName="Permit"
+                            document={documents.permit}
+                            complianceStatus={complianceStatus.permit}
+                            canVerify={user.permissions?.canVerifyDocuments}
+                            onVerified={loadDocuments}
+                          />
+                          
+                          {user.permissions?.canAddVehicle && (
+                            <DocumentUploadForm 
+                              entityId={vehicle._id}
+                              entityType="vehicle"
+                              docType="permit"
+                              docName="Permit"
+                              onUploaded={loadDocuments}
+                            />
+                          )}
+                        </div>
+                      )}
+                    </div>
                       
                       {/* Force Compliance Button */}
                       <div className="force-compliance">
@@ -234,7 +302,6 @@ export default function VehicleDetails({ vehicle, onClose }) {
                           </button>
                         )}
                       </div>
-                    </div>
                   </div>
                 </>
               ) : (

@@ -8,10 +8,14 @@ import {
   updateVehicle,
   deleteVehicle,
   updateVehicleStatus,
-  assignDriverToVehicle
+  assignDriverToVehicle,
+  getVehicleStats
 } from '../controllers/vehicleController.js';
 
 const router = express.Router();
+
+// GET /api/vehicles/stats/:vendorId - This must come before the general routes
+router.get('/stats/:vendorId', authenticate, getVehicleStats);
 
 // GET /api/vehicles?vendorId=<id>
 router.get('/', authenticate, authorize('canAddVehicle'), listVehicles);

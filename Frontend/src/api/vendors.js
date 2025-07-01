@@ -35,10 +35,21 @@ export async function createSubVendor(parentVendorId, data) {
 
 export async function updateVendor(vendorId, data) {
   try {
+    console.log('API: Updating vendor:', vendorId, 'with data:', data);
     const res = await api.put(`/vendors/${vendorId}`, data);
+    console.log('API: Vendor update successful:', res.data);
     return res.data;
   } catch (err) {
-    console.error('Error updating vendor:', err);
+    console.error('API: Error updating vendor:', err);
+    console.error('API: Error response details:', err.response?.data);
+    
+    // Better error handling
+    if (err.response?.status === 403) {
+      console.error('Permission denied for vendor update');
+    } else if (!err.response) {
+      console.error('Network error - no response received');
+    }
+    
     throw err;
   }
 }

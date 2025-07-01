@@ -57,8 +57,8 @@ const vehicleSchema = new mongoose.Schema({
 // Method to check if all required docs are valid
 vehicleSchema.methods.checkCompliance = function() {
   const now = new Date();
-  // Only require insurance
-  const requiredDocs = ['insurance'];
+  // Require insurance and permit
+  const requiredDocs = ['insurance', 'permit'];
   let compliant = true;
   
   // Initialize documents and complianceStatus if they don't exist
@@ -98,7 +98,7 @@ vehicleSchema.methods.checkCompliance = function() {
     const doc = this.documents[docType];
     const status = this.complianceStatus[docType];
     
-    // Only check insurance
+    // Check document
     if (!doc?.url || 
         !status?.verified || 
         (doc.expiresAt && doc.expiresAt < now)) {

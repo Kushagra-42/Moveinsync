@@ -158,13 +158,13 @@ export const createSubVendor = async (req, res) => {
         canDeleteSubVendor: newLevelValue < 2, // Only Super vendors can delete
         canEditPermissions: newLevelValue < 2, // Only Super vendors can edit permissions
         canManageFleet: newLevelValue < 3,
-        canViewFleet: newLevelValue < 4,
+        canViewFleet: newLevelValue < 3,
         canAddDriver: newLevelValue < 4,
         canEditDriver: newLevelValue < 4,
         canRemoveDriver: newLevelValue < 3,
         canAssignDrivers: newLevelValue < 4,
         canAddVehicle: newLevelValue < 4,
-        canEditVehicle: newLevelValue < 4,
+        canEditVehicle: newLevelValue < 3,
         canRemoveVehicle: newLevelValue < 3,
         canAssignVehicles: newLevelValue < 4,
         canUploadDocuments: true,
@@ -248,11 +248,14 @@ export const createSubVendor = async (req, res) => {
 export const updateVendor = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, region, city } = req.body;
+    const { name, region, city, level, levelValue } = req.body;
+    
+    console.log('Update vendor request:', { id, body: req.body, user: req.user.email });
     
     // Check if vendor exists and is in user's subtree
     const vendor = await Vendor.findById(id);
     if (!vendor) {
+      console.log('Vendor not found:', id);
       return res.status(404).json({ message: 'Vendor not found' });
     }
     
@@ -260,21 +263,60 @@ export const updateVendor = async (req, res) => {
     const userSubtree = await getSubtreeVendorIds(userVendorId);
     
     if (!userSubtree.map(id => id.toString()).includes(vendor._id.toString())) {
+      console.log('Vendor not in subtree:', { userVendorId, vendorId: id });
       return res.status(403).json({ message: 'Forbidden: Vendor not in your subtree' });
     }
     
     // Check if user has permission to edit vendor
     if (!req.user.permissions?.canEditSubVendor) {
-      return res.status(403).json({ message: 'Forbidden: You do not have permission to edit vendors' });
+      console.log('Missing permission:', { userPermissions: req.user.permissions, requiredPermission: 'canEditSubVendor' });
+      return res.status(403).json({ 
+        message: 'Forbidden: You do not have permission to edit vendors',
+        requiredPermission: 'canEditSubVendor'
+      });
     }
     
-    // Update vendor
+    // Update vendor without losing required fields
     vendor.name = name || vendor.name;
     vendor.region = region !== undefined ? region : vendor.region;
     vendor.city = city !== undefined ? city : vendor.city;
     
-    await vendor.save();
+    // Preserve existing level and levelValue unless explicitly provided
+    if (level) vendor.level = level;
+    if (levelValue) vendor.levelValue = levelValue;
     
+    // Make sure levelValue remains set based on level
+    // levelValue: 1=Super, 2=Regional, 3=City
+    if (!vendor.levelValue) {
+      if (vendor.level === 'SuperVendor') {
+        vendor.levelValue = 1;
+      } else if (vendor.level === 'RegionalVendor') {
+        vendor.levelValue = 2;
+      } else if (vendor.level === 'CityVendor') {
+        vendor.levelValue = 3;
+      }
+    }
+    
+    console.log('About to save vendor with these values:', {
+      name: vendor.name,
+      level: vendor.level,
+      levelValue: vendor.levelValue,
+      region: vendor.region,
+      city: vendor.city
+    });
+    
+    try {
+      await vendor.save();
+    } catch (validationErr) {
+      console.error('Validation error during vendor save:', validationErr);
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        details: validationErr.message,
+        errors: validationErr.errors
+      });
+    }
+    
+    console.log('Vendor updated successfully:', id);
     res.json({
       vendor,
       message: 'Vendor updated successfully'
@@ -282,7 +324,13 @@ export const updateVendor = async (req, res) => {
     
   } catch (err) {
     console.error('Error in updateVendor:', err);
-    res.status(500).json({ message: 'Server error' });
+    // Send more detailed error messages
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation error', details: err.message });
+    } else if (err.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+    res.status(500).json({ message: 'Server error processing vendor update', details: err.message });
   }
 };
 
@@ -407,13 +455,17 @@ export const updateVendorPermissions = async (req, res) => {
     const { id } = req.params;
     const { permissions } = req.body;
     
+    console.log('Updating vendor permissions:', { id, permissions, user: req.user.email });
+    
     if (!permissions) {
+      console.log('Missing permissions in request');
       return res.status(400).json({ message: 'Permissions object is required' });
     }
     
     // Check if the vendor to update exists
     const vendor = await Vendor.findById(id);
     if (!vendor) {
+      console.log('Vendor not found:', id);
       return res.status(404).json({ message: 'Vendor not found' });
     }
     
@@ -421,18 +473,33 @@ export const updateVendorPermissions = async (req, res) => {
     const userVendorId = req.user.vendorId;
     const userVendor = await Vendor.findById(userVendorId);
     
+    if (!userVendor) {
+      console.log('User vendor not found:', userVendorId);
+      return res.status(404).json({ message: 'Your vendor account was not found' });
+    }
+    
     // Check if user has permission to edit permissions
-    if (!userVendor.permissions.canEditPermissions) {
-      return res.status(403).json({ message: 'You do not have permission to modify vendor permissions' });
+    if (!userVendor.permissions?.canEditPermissions) {
+      console.log('Missing permission to edit permissions:', { 
+        userPermissions: userVendor.permissions,
+        requiredPermission: 'canEditPermissions'
+      });
+      
+      return res.status(403).json({ 
+        message: 'You do not have permission to modify vendor permissions',
+        requiredPermission: 'canEditPermissions'
+      });
     }
     
     const vendorIds = await getSubtreeVendorIds(userVendorId);
     if (!vendorIds.map(id => id.toString()).includes(vendor._id.toString())) {
+      console.log('Vendor not in subtree:', { userVendorId, vendorId: id });
       return res.status(403).json({ message: 'Forbidden: Vendor not in your subtree' });
     }
     
     // Super Vendor cannot have its permissions modified
     if (vendor.level === 'SuperVendor' && vendor._id.toString() !== userVendorId.toString()) {
+      console.log('Attempted to modify super vendor permissions');
       return res.status(403).json({ message: 'Cannot modify super vendor permissions' });
     }
     
@@ -440,6 +507,7 @@ export const updateVendorPermissions = async (req, res) => {
     vendor.permissions = { ...vendor.permissions, ...permissions };
     await vendor.save();
     
+    console.log('Vendor permissions updated successfully:', id);
     res.json({ 
       message: 'Vendor permissions updated successfully', 
       vendor: {
@@ -451,7 +519,15 @@ export const updateVendorPermissions = async (req, res) => {
     });
   } catch (err) {
     console.error('Error in updateVendorPermissions:', err);
-    res.status(500).json({ message: 'Server error' });
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation error', details: err.message });
+    } else if (err.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+    res.status(500).json({ 
+      message: 'Server error updating permissions',
+      details: err.message
+    });
   }
 };
 

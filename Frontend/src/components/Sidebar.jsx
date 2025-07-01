@@ -41,12 +41,6 @@ export default function Sidebar() {
       show: permissions?.canCreateSubVendor || permissions?.canEditSubVendor || permissions?.canEditPermissions 
     },
     { 
-      label: 'Fleet', 
-      to: '/dashboard/fleet', 
-      icon: '🚚', 
-      show: permissions?.canManageFleet || permissions?.canViewFleet 
-    },
-    { 
       label: 'Drivers', 
       to: '/dashboard/drivers', 
       icon: '👨‍✈️', 
@@ -63,12 +57,6 @@ export default function Sidebar() {
       to: `${DashboardRoutes[role]}/compliance`, 
       icon: '📄', 
       show: permissions?.canVerifyDocuments || permissions?.canUploadDocuments
-    },
-    { 
-      label: 'Analytics', 
-      to: `${DashboardRoutes[role]}/analytics`, 
-      icon: '📊', 
-      show: permissions?.canViewAnalytics 
     },
     { 
       label: 'My Documents', 

@@ -41,7 +41,7 @@ export default function DriverDetails({ driver }) {
 
   return (
     <div className="driver-details">
-      <h3>Driver Details: {driver.name}</h3>
+      {/* Title removed from here as it's already shown in the modal */}
       
       <div className="tabs">
         <div className="tabs-nav">
@@ -63,7 +63,38 @@ export default function DriverDetails({ driver }) {
             <div>
               <p><strong>Name:</strong> {driver.name}</p>
               <p><strong>Contact:</strong> {driver.contact || driver.phone || driver.email || 'Not provided'}</p>
-              <p><strong>Status:</strong> <span className={`badge status-${(driver.status || '').toLowerCase()}`}>{driver.status || 'Unknown'}</span></p>
+              
+              <div className="status-field">
+                <strong>Status: </strong>
+                {user.permissions?.canEditDriver ? (
+                  <select 
+                    className={`status-select select-${(driver.status || 'inactive').toLowerCase()}`}
+                    value={driver.status || 'INACTIVE'}
+                    onChange={async (e) => {
+                      try {
+                        setLoading(true);
+                        const newStatus = e.target.value;
+                        await updateDriver(driver._id, { status: newStatus });
+                        // Force refresh driver data by reloading document info
+                        await loadDocuments();
+                        setError('');
+                      } catch (err) {
+                        setError(err.response?.data?.message || 'Cannot change status. Driver may not be compliant.');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                  >
+                    <option value="AVAILABLE">AVAILABLE</option>
+                    <option value="ON_DUTY">ON DUTY</option>
+                    <option value="MAINTENANCE">MAINTENANCE</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                  </select>
+                ) : (
+                  <span className={`badge status-${(driver.status || '').toLowerCase()}`}>{driver.status || 'Unknown'}</span>
+                )}
+              </div>
+              
               <p><strong>Assigned Vehicle:</strong> {
                 driver.assignedVehicle 
                   ? driver.assignedVehicle.regNumber 
@@ -92,29 +123,96 @@ export default function DriverDetails({ driver }) {
                   </div>                  <div className="document-section">
                     <h3>Driver Documents</h3>
                     
+                    <div className="document-controls">
+                      {/* Add Document Button removed as it was not useful */}
+                      
+                      {user.permissions?.canVerifyDocuments && documents.drivingLicense?.url && !complianceStatus.drivingLicense?.verified && (
+                        <button 
+                          className="verify-document-btn"
+                          onClick={async () => {
+                            try {
+                              setLoading(true);
+                              // Directly verify the document
+                              await updateDriver(driver._id, {
+                                complianceStatus: {
+                                  ...driver.complianceStatus,
+                                  drivingLicense: {
+                                    verified: true,
+                                    verifiedAt: new Date(),
+                                    verifiedBy: user._id,
+                                    notes: 'Verified from driver details'
+                                  }
+                                }
+                              });
+                              loadDocuments();
+                              setError('');
+                            } catch (err) {
+                              setError('Failed to verify document');
+                              console.error(err);
+                            } finally {
+                              setLoading(false);
+                            }
+                          }}
+                        >
+                          ✓ Verify Document
+                        </button>
+                      )}
+                    </div>
+                    
                     <div className="documents-grid">
                       {/* Driving License - Only required document */}
                       <div>
-                        <DocumentStatus 
-                          entityId={driver._id}
-                          entityType="driver"
-                          docType="drivingLicense"
-                          docName="Driving License"
-                          document={documents.drivingLicense}
-                          complianceStatus={complianceStatus.drivingLicense}
-                          canVerify={user.permissions?.canVerifyDocuments}
-                          onVerified={loadDocuments}
-                        />
+                        {/* Show upload form first if no document exists */}
+                        {(!documents.drivingLicense || !documents.drivingLicense.url) && user.permissions?.canAddDriver && (
+                          <div className="missing-document-card">
+                            <div className="missing-document-header">
+                              <h4>Missing Required Document</h4>
+                              <div className="status-badge status-missing">Required</div>
+                            </div>
+                            <p className="missing-document-message">This driver doesn't have a driving license uploaded yet.</p>
+                            <div className="document-upload-section">
+                              <h4>Upload Driving License</h4>
+                              <DocumentUploadForm 
+                                entityId={driver._id}
+                                entityType="driver"
+                                docType="drivingLicense"
+                                docName="Driving License"
+                                onUploaded={loadDocuments}
+                              />
+                            </div>
+                          </div>
+                        )}
                         
-                        {user.permissions?.canAddDriver && (
-                          <DocumentUploadForm 
+                        {/* Show document status if document exists */}
+                        {documents.drivingLicense && documents.drivingLicense.url && (
+                          <DocumentStatus 
                             entityId={driver._id}
                             entityType="driver"
                             docType="drivingLicense"
                             docName="Driving License"
-                            onUploaded={loadDocuments}
+                            document={documents.drivingLicense}
+                            complianceStatus={complianceStatus.drivingLicense}
+                            canVerify={user.permissions?.canVerifyDocuments}
+                            onVerified={loadDocuments}
                           />
                         )}
+                        
+                        {/* Upload form for updating existing document */}
+                        <div id="license-upload-form" className={(documents.drivingLicense && documents.drivingLicense.url) ? "document-actions upload-form-container" : "document-actions upload-form-container visible"}>
+                          {user.permissions?.canAddDriver && documents.drivingLicense && documents.drivingLicense.url && (
+                            <div className="document-upload-section">
+                              <h4>Update Driving License</h4>
+                              <DocumentUploadForm 
+                                entityId={driver._id}
+                                entityType="driver"
+                                docType="drivingLicense"
+                                docName="Driving License"
+                                onUploaded={loadDocuments}
+                              />
+                              <p className="document-help-text">Upload a new version of the driving license if needed.</p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       
                       {/* Force Compliance Button */}
@@ -124,6 +222,7 @@ export default function DriverDetails({ driver }) {
                             className="btn-primary" 
                             onClick={async () => {
                               try {
+                                setLoading(true);
                                 // Update driver with forced compliance
                                 const updatedDriver = {...driver};
                                 
@@ -137,19 +236,57 @@ export default function DriverDetails({ driver }) {
                                 updatedDriver.complianceStatus.overall.manuallyApproved = true;
                                 updatedDriver.complianceStatus.overall.compliant = true;
                                 
-                                // Save via API
+                                // Save via API with status update to AVAILABLE
                                 await updateDriver(driver._id, {
-                                  complianceStatus: updatedDriver.complianceStatus
+                                  complianceStatus: updatedDriver.complianceStatus,
+                                  status: 'AVAILABLE' // Set to available when forcing compliance
                                 });
                                 
                                 loadDocuments(); // Refresh
+                                setError(''); // Clear any errors
                               } catch (err) {
                                 console.error("Error forcing compliance:", err);
                                 setError("Failed to force compliance approval");
+                              } finally {
+                                setLoading(false);
                               }
                             }}
                           >
-                            Force Approve Compliance
+                            Force Approve Compliance & Set Available
+                          </button>
+                        )}
+                        
+                        {/* Remove Forced Compliance Button - Only visible if compliance is currently forced */}
+                        {user.permissions?.canVerifyDocuments && complianceStatus.overall.manuallyApproved && (
+                          <button 
+                            className="btn-secondary" 
+                            onClick={async () => {
+                              try {
+                                setLoading(true);
+                                // Update driver to remove forced compliance
+                                await updateDriver(driver._id, {
+                                  complianceStatus: {
+                                    ...driver.complianceStatus,
+                                    overall: {
+                                      ...driver.complianceStatus.overall,
+                                      manuallyApproved: false,
+                                      compliant: false // Set to non-compliant if manually approved is removed
+                                    }
+                                  },
+                                  status: 'INACTIVE' // Optionally set status to INACTIVE
+                                });
+                                
+                                loadDocuments(); // Refresh
+                                setError(''); // Clear any errors
+                              } catch (err) {
+                                console.error("Error removing forced compliance:", err);
+                                setError("Failed to remove forced compliance");
+                              } finally {
+                                setLoading(false);
+                              }
+                            }}
+                          >
+                            Remove Forced Compliance
                           </button>
                         )}
                       </div>

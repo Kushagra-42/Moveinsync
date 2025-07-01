@@ -459,3 +459,78 @@ export async function assignDriverToVehicle(req, res) {
     res.status(500).json({ message: 'Server error' });
   }
 }
+
+// Function to get vehicle statistics for a vendor subtree
+export async function getVehicleStats(req, res) {
+  try {
+    console.log('getVehicleStats called with params:', req.params);
+    const { vendorId } = req.params;
+    let targetVendorId;
+
+    // If 'current', use the requesting user's vendorId
+    if (vendorId === 'current') {
+      targetVendorId = req.user.vendorId;
+      console.log('Using current user vendorId:', targetVendorId);
+    } else {
+      targetVendorId = vendorId;
+      console.log('Using provided vendorId:', targetVendorId);
+      
+      // Only do permission check if provided vendorId is different from user's vendorId
+      if (targetVendorId.toString() !== req.user.vendorId.toString()) {
+        const userVendorId = req.user.vendorId;
+        const accessibleVendors = await getSubtreeVendorIds(userVendorId);
+        console.log('Accessible vendors:', accessibleVendors);
+        
+        // Check if target vendor ID is in the list of accessible vendors (string comparison)
+        const accessibleVendorIds = accessibleVendors.map(id => id.toString());
+        if (!accessibleVendorIds.includes(targetVendorId.toString())) {
+          console.log('Permission denied for vendorId:', targetVendorId);
+          return res.status(403).json({ message: 'You do not have permission to view stats for this vendor' });
+        }
+      }
+    }
+
+    // Get all vendors in target subtree
+    const vendorIds = await getSubtreeVendorIds(targetVendorId);
+    console.log('Vendor subtree IDs:', vendorIds);
+
+    // Count vehicles by status
+    const stats = {
+      total: 0,
+      active: 0, // Both AVAILABLE and IN_SERVICE
+      maintenance: 0,
+      inactive: 0,
+      unassigned: 0 // AVAILABLE but no driver assigned
+    };
+    
+    // Query all vehicles in vendor subtree
+    const vehicles = await Vehicle.find({ vendorId: { $in: vendorIds } });
+    console.log('Found vehicles:', vehicles.length);
+    
+    stats.total = vehicles.length;
+    
+    // Calculate status counts
+    vehicles.forEach(vehicle => {
+      console.log('Vehicle status:', vehicle.regNumber, vehicle.status);
+      if (vehicle.status === 'MAINTENANCE') {
+        stats.maintenance++;
+      } else if (vehicle.status === 'INACTIVE') {
+        stats.inactive++;
+      } else {
+        // Either AVAILABLE or IN_SERVICE counts as active
+        stats.active++;
+      }
+      
+      if (vehicle.status === 'AVAILABLE' && !vehicle.assignedDriverId) {
+        stats.unassigned++;
+      }
+    });
+    
+    console.log('Final stats:', stats);
+    return res.json(stats);
+    
+  } catch (error) {
+    console.error('Error getting vehicle stats:', error);
+    return res.status(500).json({ message: 'Failed to get vehicle statistics' });
+  }
+}

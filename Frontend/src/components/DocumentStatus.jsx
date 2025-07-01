@@ -88,26 +88,30 @@ export default function DocumentStatus({ entityId, entityType, docType, docName,
 
   return (
     <div className="document-status">
-      <h4>{docName}</h4>
-      
-      <div className="status-container">
+      <div className="document-header">
+        <h4>{docName}</h4>
         <div className={`status-badge ${getStatusClass()}`}>
           {getStatusText()}
         </div>
-        
+      </div>
+      
+      <div className="status-container">
         {document && document.url ? (
           <div className="document-details">
-            <p>
-              <a 
-                href={document.url} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="document-link"
-              >
-                View Document
-              </a>
-            </p>
-            <p>Uploaded: {formatDate(document.uploadedAt)}</p>
+            <div className="document-actions-row">
+              <span className="document-info">
+                Document uploaded on {formatDate(document.uploadedAt)}
+              </span>
+              
+              {!complianceStatus?.verified && canVerify && (
+                <button 
+                  className="quick-verify-btn"
+                  onClick={() => handleVerify(true)}
+                >
+                  ✓ Approve
+                </button>
+              )}
+            </div>
             {document.expiresAt && (
               <p className={daysUntilExpiry < 0 ? 'expired' : daysUntilExpiry < 30 ? 'expiring-soon' : ''}>
                 Expires: {formatDate(document.expiresAt)}

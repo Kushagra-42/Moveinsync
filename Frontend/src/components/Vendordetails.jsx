@@ -33,6 +33,8 @@ export default function VendorDetails({
         name: node.name || '',
         region: node.region || '',
         city: node.city || '',
+        level: node.level || '',    // Preserve the level field
+        levelValue: node.levelValue // Preserve the levelValue field
       });
       setEditing(false);
       setError('');
@@ -56,12 +58,33 @@ export default function VendorDetails({
     setSuccess('');
     
     try {
+      console.log('Updating vendor:', { id: node._id, data: vendorData });
+      // Ensure levelValue is set correctly
+      if (!vendorData.levelValue && vendorData.level) {
+        // Add levelValue based on level if it's missing
+        if (vendorData.level === 'SuperVendor') {
+          vendorData.levelValue = 1;
+        } else if (vendorData.level === 'RegionalVendor') {
+          vendorData.levelValue = 2;
+        } else if (vendorData.level === 'CityVendor') {
+          vendorData.levelValue = 3;
+        }
+      }
       await updateVendor(node._id, vendorData);
       setEditing(false);
       setSuccess('Vendor updated successfully');
       if (onUpdated) onUpdated();
     } catch (err) {
-      setError(err.response?.data?.message || 'Error updating vendor');
+      console.error('Vendor update error:', err);
+      
+      if (err.response?.data?.requiredPermission) {
+        // Handle permission-specific error
+        setError(`You don't have the required permission: ${err.response.data.requiredPermission}`);
+      } else if (err.response?.data?.details && err.response?.data?.details.includes('Validation')) {
+        setError(`Validation error: ${err.response?.data?.details}`);
+      } else {
+        setError(err.response?.data?.message || 'Error updating vendor');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +117,16 @@ export default function VendorDetails({
 
   return (
     <div className="vendor-details-container">
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message">
+          <strong>Error:</strong> {error}
+          {error.includes('permission') && (
+            <div className="permission-note">
+              Note: You may need additional permissions to edit this vendor.
+            </div>
+          )}
+        </div>
+      )}
       {success && <div className="success-message">{success}</div>}
       
       <div className="vendor-tabs">

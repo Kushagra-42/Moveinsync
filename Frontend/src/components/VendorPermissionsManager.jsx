@@ -48,12 +48,22 @@ export default function VendorPermissionsManager({ vendorId, onChange }) {
   const handleSavePermissions = async () => {
     try {
       setSaveLoading(true);
+      setError('');
       setError('');      
       await updateVendorPermissions(vendorId, permissions);
       if (onChange) onChange();
     } catch (err) {
       console.error('Error updating permissions:', err);
-      setError(err.response?.data?.message || 'Failed to update permissions');
+      
+      if (err.response?.data?.requiredPermission) {
+        setError(`Permission denied: You need ${err.response.data.requiredPermission} permission`);
+      } else if (err.response?.status === 403) {
+        setError('Permission denied: You do not have the necessary permissions to modify this vendor');
+      } else if (err.response?.data?.details) {
+        setError(`${err.response.data.message}: ${err.response.data.details}`);
+      } else {
+        setError(err.response?.data?.message || 'Failed to update permissions');
+      }
     } finally {
       setSaveLoading(false);
     }

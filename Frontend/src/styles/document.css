@@ -1,4 +1,14 @@
 /* Frontend/src/styles/document.css */
+.document-info {
+  display: inline-block;
+  padding: 6px 10px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 8px;
+}
+
 .document-upload-form {
   margin-bottom: 20px;
   padding: 15px;
@@ -99,7 +109,8 @@ button:disabled {
 .status-badge {
   display: inline-block;
   padding: 5px 10px;
-  border-radius: 4px;
+  border-radius: 50px;
+  font-size: 0.9rem;
   font-weight: 500;
   margin-right: 15px;
   min-width: 120px;
@@ -184,6 +195,36 @@ button:disabled {
   gap: 10px;
 }
 
+.document-upload-section {
+  background-color: #f8f9fa;
+  border: 1px dashed #c0c0c0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.document-upload-section h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.document-help-text {
+  margin-top: 10px;
+  color: #666;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.force-compliance {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #e8eaf6;
+  border: 1px solid #c5cae9;
+}
+
 /* Document section grid for symmetric layout */
 .documents-grid {
   display: grid;
@@ -259,119 +300,241 @@ button:disabled {
   background-color: #616161;
 }
 
-/* Details panel for document sections */
-.details-panel {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  height: 100%;
-}
-
-.details-header {
+/* Document controls section */
+.document-controls {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.details-header h3 {
-  margin: 0;
-  color: #333;
-  font-size: 1.2rem;
-}
-
-.close-detail-button {
-  background: none;
+.add-document-btn {
+  background-color: #0d6efd;
+  color: white;
   border: none;
-  font-size: 1.5rem;
-  color: #757575;
+  border-radius: 4px;
+  padding: 8px 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  padding: 0;
-  transition: all 0.2s;
+  font-weight: 500;
 }
 
-.close-detail-button:hover {
-  background-color: #e0e0e0;
-  color: #d32f2f;
+.add-document-btn:hover {
+  background-color: #0b5ed7;
 }
 
-.detail-header-info {
-  padding: 10px 20px;
-  border-bottom: 1px solid #e0e0e0;
+.verify-document-btn {
+  background-color: #198754;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.verify-document-btn:hover {
+  background-color: #157347;
+}
+
+/* Upload form container visibility */
+.upload-form-container {
+  display: none;
+  margin-top: 15px;
+}
+
+.upload-form-container.visible {
+  display: block;
+}
+
+/* Make the document status card look better */
+.document-status {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Improve the status badge styling */
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Better styling for Force Approve button */
+.force-compliance button {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 15px;
+}
+
+.document-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.reg-number {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #333;
-}
-
-.empty-details {
-  padding: 40px 20px;
-  text-align: center;
-  color: #757575;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-/* Details grid for symmetric layouts */
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  padding: 20px;
-}
-
-.details-section {
-  background-color: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  height: 100%;
-}
-
-.details-section h4 {
-  margin-top: 0;
-  margin-bottom: 12px;
-  color: #333;
-  font-size: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
   padding-bottom: 8px;
 }
 
-.detail-item {
-  margin-bottom: 10px;
+.document-header h4 {
+  margin: 0;
+  padding: 0;
+  border-bottom: none;
+}
+
+.document-actions-row {
   display: flex;
-  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
-.detail-label {
+.document-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background-color: #e9ecef;
+  color: #212529;
+  text-decoration: none;
+  border-radius: 4px;
   font-weight: 500;
-  color: #555;
-  margin-bottom: 3px;
+  border: 1px solid #dee2e6;
 }
 
-.detail-value {
-  color: #333;
+.document-link:hover {
+  background-color: #dee2e6;
+  text-decoration: none;
 }
 
-/* Compliance summary styling */
-.compliance-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+.quick-verify-btn {
+  background-color: #198754;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.quick-verify-btn:hover {
+  background-color: #157347;
+}
+
+/* Status Badge styles */
+.status-badge.status-verified {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: 1px solid #badbcc;
+}
+
+.status-badge.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.status-badge.status-rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.status-badge.status-missing {
+  background-color: #e9ecef;
+  color: #495057;
+  border: 1px solid #dee2e6;
+}
+
+.status-badge.status-expired {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.missing-document-card {
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   margin-bottom: 20px;
+}
+
+.missing-document-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #f8d7da;
+  padding-bottom: 8px;
+}
+
+.missing-document-header h4 {
+  margin: 0;
+  padding: 0;
+  color: #721c24;
+}
+
+.missing-document-message {
+  color: #721c24;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+/* Make "Required" status badge stand out */
+.status-badge.status-missing {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Button styles for primary and secondary actions */
+.btn-primary {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-align: center;
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
 }

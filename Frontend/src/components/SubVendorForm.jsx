@@ -43,13 +43,8 @@ export default function SubVendorForm({ parentVendorId, onCreated, onCancel }) {
       }
     }
     
-    // Check permissions for creating drivers
-    const canCreateDrivers = user?.permissions?.canAddDriver;
-    
-    // Everyone (except drivers) with proper permissions can create drivers
-    if (canCreateDrivers && userLevel < HierarchyLevels.DRIVER) {
-      levels.push('Driver');
-    }
+    // We're no longer adding Driver type in this form
+    // Driver creation is handled elsewhere
     
     console.log('Available levels determined:', levels);
     console.log('User level:', userLevel);
@@ -136,8 +131,8 @@ export default function SubVendorForm({ parentVendorId, onCreated, onCancel }) {
     }
   };
   
-  // Determine if the form should show fields for a driver or vendor
-  const isDriverForm = formData.level === 'Driver';
+  // No longer need to check for driver form
+  const isDriverForm = false;
 
   return (
     <div className="vendor-form-container">
@@ -145,7 +140,7 @@ export default function SubVendorForm({ parentVendorId, onCreated, onCancel }) {
         {error && <div className="error-message">{error}</div>}
         
         <div className="form-group">
-          <label htmlFor="name">{isDriverForm ? 'Driver Name' : 'Vendor Name'}</label>
+          <label htmlFor="name">Vendor Name</label>
           <input
             type="text"
             id="name"
@@ -154,7 +149,7 @@ export default function SubVendorForm({ parentVendorId, onCreated, onCancel }) {
             onChange={handleChange}
             required
             className="form-input"
-            placeholder={isDriverForm ? "Enter driver's name" : "Enter vendor name"}
+            placeholder="Enter vendor name"
           />
         </div>
         
@@ -188,7 +183,7 @@ export default function SubVendorForm({ parentVendorId, onCreated, onCancel }) {
         
         {availableLevels.length > 0 && (
           <div className="form-group">
-            <label htmlFor="level">Type</label>
+            <label htmlFor="level">Vendor Type</label>
             <select
               id="level"
               name="level"
@@ -197,12 +192,11 @@ export default function SubVendorForm({ parentVendorId, onCreated, onCancel }) {
               required
               className="form-select"
             >
-              <option value="">-- Select Type --</option>
+              <option value="">-- Select Vendor Type --</option>
               {availableLevels.map(level => (
                 <option key={level} value={level}>
                   {level === 'RegionalVendor' ? 'Regional Vendor' : 
-                   level === 'CityVendor' ? 'City Vendor' : 
-                   level === 'Driver' ? 'Driver' : level}
+                   level === 'CityVendor' ? 'City Vendor' : level}
                 </option>
               ))}
             </select>
@@ -256,20 +250,7 @@ export default function SubVendorForm({ parentVendorId, onCreated, onCancel }) {
           </>
         )}
         
-        {isDriverForm && (
-          <div className="form-group">
-            <label htmlFor="city">City</label>
-            <input
-              type="text"
-              id="city"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              className="form-input"
-              placeholder="Driver's city"
-            />
-          </div>
-        )}
+        {/* Driver form fields removed */}
         
         <div className="form-actions">
           <button 
@@ -277,7 +258,7 @@ export default function SubVendorForm({ parentVendorId, onCreated, onCancel }) {
             className="primary-btn" 
             disabled={loading}
           >
-            {loading ? 'Creating...' : isDriverForm ? 'Add Driver' : 'Add Vendor'}
+            {loading ? 'Creating...' : 'Add Vendor'}
           </button>
           
           <button

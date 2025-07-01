@@ -37,7 +37,7 @@ export default function DriversPage() {
         loadAvailableVehicles();
       }
     }
-  }, [user, filters.status]);
+  }, [user, filters.status, filters.search]);
 
   const loadDrivers = async () => {
     try {
@@ -56,12 +56,13 @@ export default function DriversPage() {
       // Apply search filter locally
       const filteredDrivers = filters.search 
         ? response.filter(d => {
-            const searchTerm = filters.search.toLowerCase();
+            const searchTerm = filters.search.toLowerCase().trim();
             return (
               (d.name && d.name.toLowerCase().includes(searchTerm)) || 
-              (d.phone && d.phone.toLowerCase().includes(searchTerm)) ||
-              (d.email && d.email.toLowerCase().includes(searchTerm)) ||
-              (d.contact && d.contact.toLowerCase().includes(searchTerm))
+              (d.phone && d.phone?.toLowerCase().includes(searchTerm)) ||
+              (d.email && d.email?.toLowerCase().includes(searchTerm)) ||
+              (d.contact && d.contact?.toLowerCase().includes(searchTerm)) ||
+              (d.vendorName && d.vendorName?.toLowerCase().includes(searchTerm))
             );
           })
         : response;
@@ -98,15 +99,29 @@ export default function DriversPage() {
     }
   };
   
-  const handleStatusChange = async (driver, newStatus) => {
+  const handleStatusChange = async (driver, newStatus, forceCompliance = false) => {
     try {
       setError('');
       setSuccess('');
-      await updateDriverStatus(driver._id, newStatus);
+      
+      await updateDriverStatus(driver._id, newStatus, forceCompliance);
       setSuccess(`Driver status updated to ${newStatus}`);
       loadDrivers();
     } catch (err) {
       console.error('Error updating driver status:', err);
+      
+      if (err.response?.data?.message?.includes('not compliant') && !forceCompliance && 
+          (newStatus === 'AVAILABLE' || newStatus === 'ON_DUTY')) {
+        
+        const confirm = window.confirm(
+          `This driver doesn't have all required documents verified. \n\nWould you like to force approve compliance and change status to ${newStatus}?`
+        );
+        
+        if (confirm) {
+          return handleStatusChange(driver, newStatus, true); // Retry with forceCompliance
+        }
+      }
+      
       setError(err.response?.data?.message || 'Error updating driver status');
     }
   };
@@ -136,9 +151,11 @@ export default function DriversPage() {
     setSelectedDriver(driver);
   };
 
+  // Add debounce for search input to prevent excessive API calls
   const handleSearchChange = (e) => {
     const searchValue = e.target.value;
     setFilters(prev => ({ ...prev, search: searchValue }));
+    // Debouncing is handled by the useEffect dependency on filters.search
   };
 
   const handleDriverCreated = (newDriver) => {
@@ -279,39 +296,30 @@ export default function DriversPage() {
                             🚗
                           </button>
                         )}                        {user.permissions?.canEditDriver && (
-                          <button 
-                            className="action-btn status"
-                            onClick={() => {
-                              const driver = drivers.find(d => d._id === driver._id);
-                              const newStatus = window.confirm(`Change status for ${driver.name}?\n\nCurrent: ${driver.status || 'INACTIVE'}\n\nChoose:\n- AVAILABLE (can be assigned)\n- ON_DUTY (currently assigned)\n- MAINTENANCE (temporarily unavailable)\n- INACTIVE (not in service)\n\nClick OK to change or Cancel to keep current status.`);
-                              
-                              if (newStatus) {
-                                const statusSelect = document.createElement('select');
-                                statusSelect.innerHTML = `
-                                  <option value="AVAILABLE" ${driver.status === 'AVAILABLE' ? 'selected' : ''}>AVAILABLE</option>
-                                  <option value="ON_DUTY" ${driver.status === 'ON_DUTY' ? 'selected' : ''}>ON_DUTY</option>
-                                  <option value="MAINTENANCE" ${driver.status === 'MAINTENANCE' ? 'selected' : ''}>MAINTENANCE</option>
-                                  <option value="INACTIVE" ${driver.status === 'INACTIVE' ? 'selected' : ''}>INACTIVE</option>
-                                `;
-                                document.body.appendChild(statusSelect);
-                                
-                                const newStatusValue = prompt(
-                                  `Enter new status for driver ${driver.name} (AVAILABLE, ON_DUTY, MAINTENANCE, INACTIVE):`, 
-                                  driver.status || 'INACTIVE'
-                                );
-                                document.body.removeChild(statusSelect);
-                                
-                                if (newStatusValue && ['AVAILABLE', 'ON_DUTY', 'MAINTENANCE', 'INACTIVE'].includes(newStatusValue.toUpperCase())) {
-                                  handleStatusChange(driver, newStatusValue.toUpperCase());
-                                } else if (newStatusValue) {
-                                  alert('Invalid status. Please use AVAILABLE, ON_DUTY, MAINTENANCE, or INACTIVE');
+                          <div className="status-dropdown-container">
+                            <select
+                              className={`status-select ${getStatusClass(driver.status || 'INACTIVE')}`}
+                              value={driver.status || 'INACTIVE'}
+                              onChange={(e) => {
+                                const newStatus = e.target.value;
+                                if (newStatus === 'AVAILABLE' || newStatus === 'ON_DUTY') {
+                                  if (!driver.complianceStatus?.overall?.compliant) {
+                                    const confirm = window.confirm(
+                                      `Warning: This driver may not be compliant with document requirements. Setting to ${newStatus} may require verification of documents first.\n\nDo you want to continue?`
+                                    );
+                                    if (!confirm) return;
+                                  }
                                 }
-                              }
-                            }}
-                            title="Change status"
-                          >
-                            ⚙️
-                          </button>
+                                handleStatusChange(driver, newStatus);
+                              }}
+                              title="Change status"
+                            >
+                              <option value="AVAILABLE">AVAILABLE</option>
+                              <option value="ON_DUTY">ON DUTY</option>
+                              <option value="MAINTENANCE">MAINTENANCE</option>
+                              <option value="INACTIVE">INACTIVE</option>
+                            </select>
+                          </div>
                         )}
                       </div>
                     </td>

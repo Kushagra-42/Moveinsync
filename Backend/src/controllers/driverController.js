@@ -167,12 +167,36 @@ export async function updateDriverStatus(req, res) {
       return res.status(403).json({ message: 'Forbidden' });
     }
     
-    // If setting to AVAILABLE or ON_DUTY, check compliance first
-    if ((status === 'AVAILABLE' || status === 'ON_DUTY') && !driver.checkCompliance()) {
-      return res.status(400).json({ 
-        message: 'Cannot set status to AVAILABLE or ON_DUTY: Driver is not compliant with document requirements',
-        complianceStatus: driver.complianceStatus
-      });
+    // If setting to AVAILABLE or ON_DUTY, check compliance first or force it
+    if ((status === 'AVAILABLE' || status === 'ON_DUTY')) {
+      // First see if we need to force compliance for this status update
+      const forceCompliance = req.body.forceCompliance;
+      
+      if (forceCompliance) {
+        // Force approve compliance
+        if (!driver.complianceStatus) {
+          driver.complianceStatus = {};
+        }
+        if (!driver.complianceStatus.overall) {
+          driver.complianceStatus.overall = {};
+        }
+        driver.complianceStatus.overall.manuallyApproved = true;
+        driver.complianceStatus.overall.compliant = true;
+        driver.complianceStatus.overall.lastChecked = new Date();
+      } else {
+        // Run regular compliance check
+        const isCompliant = driver.checkCompliance();
+        
+        // Check if compliance was forced/manually approved previously
+        const manuallyApproved = driver.complianceStatus?.overall?.manuallyApproved;
+        
+        if (!isCompliant && !manuallyApproved) {
+          return res.status(400).json({ 
+            message: 'Cannot set status to AVAILABLE or ON_DUTY: Driver is not compliant with document requirements. Use force=true to override.',
+            complianceStatus: driver.complianceStatus
+          });
+        }
+      }
     }
     
     // If going to unavailable and assignedVehicleId, unassign
@@ -231,50 +255,30 @@ export async function assignVehicleToDriver(req, res) {
       }
       
       if (vehicle.assignedDriverId && vehicle.assignedDriverId.toString() !== driverId) {
-        console.error(`Vehicle ${vehicleId} is already assigned to driver ${vehicle.assignedDriverId}`);
+        console.error(`Vehicle ${vehicleId} is already assigned to another driver ${vehicle.assignedDriverId}`);
         return res.status(400).json({ message: 'Vehicle already assigned to another driver' });
       }
 
-      if (forceAssignment) {
-        // Force approval of compliance for both driver and vehicle
-        if (!driver.complianceStatus) {
-          driver.complianceStatus = {};
-        }
-        if (!driver.complianceStatus.overall) {
-          driver.complianceStatus.overall = {};
-        }
-        driver.complianceStatus.overall.manuallyApproved = true;
-        driver.complianceStatus.overall.compliant = true;
-        driver.complianceStatus.overall.lastChecked = new Date();
-
-        if (!vehicle.complianceStatus) {
-          vehicle.complianceStatus = {};
-        }
-        if (!vehicle.complianceStatus.overall) {
-          vehicle.complianceStatus.overall = {};
-        }
-        vehicle.complianceStatus.overall.manuallyApproved = true;
-        vehicle.complianceStatus.overall.compliant = true;  
-        vehicle.complianceStatus.overall.lastChecked = new Date();
-      } else {
-        // Check driver compliance before assignment if not forcing
-        if (!driver.checkCompliance()) {
-          console.error(`Driver ${driverId} is not compliant for assignment`);
-          return res.status(400).json({ 
-            message: 'Cannot assign vehicle: Driver is not compliant with document requirements',
-            complianceStatus: driver.complianceStatus
-          });
-        }
-        
-        // Check vehicle compliance before assignment if not forcing
-        if (!vehicle.checkCompliance()) {
-          console.error(`Vehicle ${vehicleId} is not compliant for assignment`);
-          return res.status(400).json({ 
-            message: 'Cannot assign vehicle: Vehicle is not compliant with document requirements',
-            complianceStatus: vehicle.complianceStatus
-          });
-        }
+      // Force approval of compliance for both driver and vehicle when assigning
+      if (!driver.complianceStatus) {
+        driver.complianceStatus = {};
       }
+      if (!driver.complianceStatus.overall) {
+        driver.complianceStatus.overall = {};
+      }
+      driver.complianceStatus.overall.manuallyApproved = true;
+      driver.complianceStatus.overall.compliant = true;
+      driver.complianceStatus.overall.lastChecked = new Date();
+
+      if (!vehicle.complianceStatus) {
+        vehicle.complianceStatus = {};
+      }
+      if (!vehicle.complianceStatus.overall) {
+        vehicle.complianceStatus.overall = {};
+      }
+      vehicle.complianceStatus.overall.manuallyApproved = true;
+      vehicle.complianceStatus.overall.compliant = true;  
+      vehicle.complianceStatus.overall.lastChecked = new Date();
       
       // Assign
       console.log(`Assigning vehicle ${vehicleId} to driver ${driverId}`);

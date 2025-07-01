@@ -81,17 +81,28 @@ export default function DocumentUploadForm({ entityId, entityType, docType, docN
 
   return (
     <div className="document-upload-form">
-      <h4>Upload {docName}</h4>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor={`file-${docType}`}>Select File (PDF, JPEG, PNG, max 5MB):</label>
+          <label htmlFor={`file-${docType}`}>
+            <div className="file-input-label">
+              <span className="file-icon">📄</span>
+              <span>Choose File (PDF, JPEG, PNG)</span>
+            </div>
+          </label>
           <input
             type="file"
             id={`file-${docType}`}
             onChange={handleFileChange}
             disabled={loading}
             accept=".pdf,.jpg,.jpeg,.png"
+            className="file-input"
           />
+          {file && (
+            <div className="selected-file">
+              <span className="file-name">{file.name}</span>
+              <span className="file-size">({(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
+            </div>
+          )}
         </div>
         <div className="form-group">
           <label htmlFor={`expiry-${docType}`}>Expiry Date (optional):</label>
@@ -105,8 +116,15 @@ export default function DocumentUploadForm({ entityId, entityType, docType, docN
         </div>
         {error && <div className="error-message">{error}</div>}
         {success && <div className="success-message">{success}</div>}
-        <button type="submit" disabled={loading || !file}>
-          {loading ? 'Uploading...' : 'Upload'}
+        <button type="submit" className="upload-button" disabled={loading || !file}>
+          {loading ? (
+            <span className="loading-spinner">
+              <span className="spinner"></span>
+              <span>Uploading...</span>
+            </span>
+          ) : (
+            <span className="upload-text">Upload Document</span>
+          )}
         </button>
       </form>
     </div>

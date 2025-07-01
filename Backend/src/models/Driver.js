@@ -25,7 +25,7 @@ const driverSchema = new mongoose.Schema({
   status: { 
     type: String, 
     enum: ['AVAILABLE','ON_DUTY','MAINTENANCE','INACTIVE'], 
-    default: 'AVAILABLE' 
+    default: 'INACTIVE' 
   },
   documents: {
     drivingLicense: documentSchema,

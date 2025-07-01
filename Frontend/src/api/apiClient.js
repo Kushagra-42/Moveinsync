@@ -25,9 +25,42 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('Response error:', error.response?.data?.message || error.message);
+    // Enhanced error logging
+    if (error.response) {
+      // Server responded with a status code outside of 2xx range
+      console.error(`Response error (${error.response.status}):`, 
+        error.response?.data?.message || error.message);
+      
+      if (error.response.status === 403) {
+        console.error('Permission error details:', error.response.data);
+      }
+    } else if (error.request) {
+      // Request was made but no response was received
+      console.error('No response received:', error.request);
+    } else {
+      // Error in setting up the request
+      console.error('Request setup error:', error.message);
+    }
+    
     return Promise.reject(error);
   }
 );
+
+// Restore token from localStorage if available
+const token = localStorage.getItem('token');
+if (token) {
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
+
+// Functions to set/clear token
+export const setToken = (token) => {
+  if (token) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
+};
+
+export const clearToken = () => {
+  delete api.defaults.headers.common['Authorization'];
+};
 
 export default api;

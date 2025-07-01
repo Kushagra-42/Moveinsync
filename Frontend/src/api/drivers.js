@@ -12,8 +12,8 @@ export async function fetchDrivers(vendorId, status) {
   const res = await api.get('/drivers', { params });
   return res.data;
 }
-export async function updateDriverStatus(id, status) {
-  const res = await api.patch(`/drivers/${id}/status`, { status });
+export async function updateDriverStatus(id, status, forceCompliance = false) {
+  const res = await api.patch(`/drivers/${id}/status`, { status, forceCompliance });
   return res.data;
 }
 export async function createDriver(data) {

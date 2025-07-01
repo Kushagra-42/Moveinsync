@@ -142,7 +142,7 @@ export default function CompliancePage() {
                                   <ul>
                                     {summary.expiringDocuments.drivers.map(driver => (
                                       <li key={driver._id}>
-                                        <strong>{driver.name}</strong>:
+                                        <strong>{driver.name}</strong>
                                         {Object.entries(driver.documents).map(([docType, doc]) => 
                                           doc?.expiresAt ? (
                                             <span key={docType} className="expiry-item">
@@ -165,7 +165,7 @@ export default function CompliancePage() {
                                   <ul>
                                     {summary.expiringDocuments.vehicles.map(vehicle => (
                                       <li key={vehicle._id}>
-                                        <strong>{vehicle.regNumber}</strong>:
+                                        <strong>{vehicle.regNumber}</strong>
                                         {Object.entries(vehicle.documents).map(([docType, doc]) => 
                                           doc?.expiresAt ? (
                                             <span key={docType} className="expiry-item">
